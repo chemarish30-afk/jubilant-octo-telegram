@@ -71,7 +71,12 @@ jobs:
         cache: 'npm'
         
     - name: Install frontend dependencies
-      run: npm ci
+      run: |
+        if [ -f package-lock.json ]; then
+          npm ci --prefer-offline --no-audit
+        else
+          npm install
+        fi
       
     - name: Run frontend tests
       run: npm test -- --watchAll=false --passWithNoTests
