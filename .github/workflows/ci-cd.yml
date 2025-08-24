@@ -83,7 +83,7 @@ jobs:
     - name: Build frontend
       run: |
         echo "Building frontend..."
-        npm run build
+        npm run build:ci
         echo "Build completed successfully"
       
     - name: Upload build artifacts

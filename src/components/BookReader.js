@@ -14,13 +14,15 @@ const BookReader = () => {
   useEffect(() => {
     // Get user's progress for this book
     fetchUserProgress();
-  }, [bookId]);
+    // Note: fetchUserProgress is intentionally excluded from deps to prevent infinite loops
+  }, [bookId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (currentPage > 0) {
       fetchPage();
     }
-  }, [bookId, currentPage]);
+    // Note: fetchPage is intentionally excluded from deps to prevent infinite loops
+  }, [bookId, currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUserProgress = async () => {
     try {
@@ -89,7 +91,8 @@ const BookReader = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [currentPage, totalPages]);
+    // Note: handleKeyPress is intentionally excluded from deps to prevent infinite loops
+  }, [currentPage, totalPages]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return <div className="loading">Loading page...</div>;
