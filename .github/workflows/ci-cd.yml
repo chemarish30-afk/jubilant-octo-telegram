@@ -115,19 +115,14 @@ jobs:
         ls -la build/
         echo "Build artifacts verified successfully"
         
-    - name: Set up Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        
-    - name: Install Netlify CLI
-      run: npm install -g netlify-cli
-      
     - name: Deploy to Netlify
+      uses: nwtgck/actions-netlify@v2.0
+      with:
+        publish-dir: './build'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "Deploy from GitHub Actions"
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-      run: |
-        echo "Deploying to Netlify..."
-        netlify deploy --prod --dir=build --message="Deploy from GitHub Actions"
-        echo "Deployment completed successfully"
+      timeout-minutes: 1

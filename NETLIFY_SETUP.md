@@ -53,9 +53,9 @@ If you need to configure environment variables for your frontend:
 
 ## Deployment Flow
 
-1. **GitHub Actions** builds the React app
+1. **GitHub Actions** builds the React app using `npm run build:ci`
 2. **GitHub Actions** uploads build artifacts
-3. **GitHub Actions** downloads artifacts and deploys to Netlify
+3. **GitHub Actions** downloads artifacts and deploys to Netlify using the official Netlify action
 4. **Netlify** serves the static files
 
 ## Troubleshooting
@@ -63,6 +63,11 @@ If you need to configure environment variables for your frontend:
 ### Build Command Not Found
 - Ensure `netlify.toml` doesn't have a build command (we build in GitHub Actions)
 - Check that the publish directory is set to `build`
+
+### Netlify CLI Installation Issues
+- The workflow now uses the official `nwtgck/actions-netlify@v2.0` action
+- This avoids network connectivity issues with npm global installations
+- No manual Netlify CLI installation required
 
 ### Missing Dependencies
 - The build happens in GitHub Actions, not Netlify
