@@ -26,6 +26,17 @@ const Register = () => {
     setError('');
     setSuccess('');
 
+    // Client-side validation
+    if (!formData.username.trim()) {
+      setError('Username is required');
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -39,18 +50,36 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await axios.post('/api/register', {
+      console.log('Attempting registration with:', {
         username: formData.username,
         email: formData.email,
         password: formData.password
       });
+
+      const response = await axios.post('/api/register', {
+        username: formData.username.trim(),
+        email: formData.email.trim(),
+        password: formData.password
+      });
       
+      console.log('Registration response:', response.data);
       setSuccess('Registration successful! You can now login.');
       setTimeout(() => {
         navigate('/login');
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      console.error('Registration error:', err);
+      console.error('Error response:', err.response?.data);
+      
+      if (err.response?.status === 400) {
+        setError(err.response.data.error || 'Invalid registration data');
+      } else if (err.response?.status === 500) {
+        setError('Server error. Please try again later.');
+      } else if (err.code === 'NETWORK_ERROR') {
+        setError('Network error. Please check your connection.');
+      } else {
+        setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

@@ -75,27 +75,59 @@ def generate_token(user_id):
     }
     return jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
 
+@app.route('/')
+def health_check():
+    return jsonify({'status': 'ok', 'message': 'Backend is running'})
+
+@app.route('/api/health')
+def api_health():
+    return jsonify({'status': 'ok', 'message': 'API is working'})
+
 @app.route('/api/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({'error': 'Username already exists'}), 400
-    
-    if User.query.filter_by(email=data['email']).first():
-        return jsonify({'error': 'Email already exists'}), 400
-    
-    password_hash = generate_password_hash(data['password'])
-    user = User(
-        username=data['username'],
-        email=data['email'],
-        password_hash=password_hash
-    )
-    
-    db.session.add(user)
-    db.session.commit()
-    
-    return jsonify({'message': 'User registered successfully'}), 201
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Validate required fields
+        required_fields = ['username', 'email', 'password']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({'error': f'{field} is required'}), 400
+        
+        # Validate email format
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, data['email']):
+            return jsonify({'error': 'Invalid email format'}), 400
+        
+        # Check if username already exists
+        if User.query.filter_by(username=data['username']).first():
+            return jsonify({'error': 'Username already exists'}), 400
+        
+        # Check if email already exists
+        if User.query.filter_by(email=data['email']).first():
+            return jsonify({'error': 'Email already exists'}), 400
+        
+        # Create user
+        password_hash = generate_password_hash(data['password'])
+        user = User(
+            username=data['username'],
+            email=data['email'],
+            password_hash=password_hash
+        )
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        return jsonify({'message': 'User registered successfully'}), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Registration error: {str(e)}")
+        return jsonify({'error': 'Registration failed. Please try again.'}), 500
 
 @app.route('/api/login', methods=['POST'])
 def login():
