@@ -1,6 +1,6 @@
 [build]
   publish = "build"
-  command = "npm run build"
+  # No build command needed since we're deploying pre-built files
 
 [build.environment]
   NODE_VERSION = "18"

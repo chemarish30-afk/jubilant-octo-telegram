@@ -85,12 +85,14 @@ jobs:
         echo "Building frontend..."
         npm run build:ci
         echo "Build completed successfully"
+        ls -la build/
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: build-files
         path: build/
+        retention-days: 1
 
   deploy:
     needs: [test-backend, test-frontend]
@@ -107,6 +109,12 @@ jobs:
         name: build-files
         path: build/
         
+    - name: Verify build artifacts
+      run: |
+        echo "Verifying build artifacts..."
+        ls -la build/
+        echo "Build artifacts verified successfully"
+        
     - name: Set up Node.js ${{ env.NODE_VERSION }}
       uses: actions/setup-node@v4
       with:
@@ -120,4 +128,6 @@ jobs:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
       run: |
-        netlify deploy --prod --dir=build
+        echo "Deploying to Netlify..."
+        netlify deploy --prod --dir=build --message="Deploy from GitHub Actions"
+        echo "Deployment completed successfully"
